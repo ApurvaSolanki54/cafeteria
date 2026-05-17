@@ -1,0 +1,19 @@
+cafeteria-booking/
+├── src/main/java/com/yourname/cafeteria/
+│   ├── CafeteriaBookingApplication.java   ← App starts here
+│   ├── config/
+│   │   ├── SecurityConfig.java            ← JWT security setup
+│   │   └── JwtConfig.java                 ← JWT helper
+│   ├── entity/                            ← Database table classes
+│   │   ├── User.java
+│   │   ├── Cafeteria.java
+│   │   ├── CafeteriaTable.java
+│   │   ├── Booking.java
+│   │   └── BookingMember.java
+│   ├── repository/                        ← Database query interfaces
+│   ├── service/                           ← Business logic
+│   ├── controller/                        ← API endpoints
+│   └── dto/                               ← Request/Response objects
+├── src/main/resources/
+│   └── application.properties
+└── pom.xml
