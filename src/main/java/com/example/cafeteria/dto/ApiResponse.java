@@ -3,13 +3,6 @@ package com.example.cafeteria.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-/*
- * A standard wrapper for ALL our API responses.
- * Instead of returning raw objects, we wrap everything like:
- * { "success": true, "message": "Booking created!", "data": {...} }
- *
- * This makes your API consistent and professional.
- */
 @Data
 @AllArgsConstructor
 public class ApiResponse<T> {

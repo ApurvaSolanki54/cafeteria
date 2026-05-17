@@ -13,12 +13,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
-/*
- * Represents one cafeteria in the office.
- * office has 4 cafeterias: 1 big, 1 medium, 2 small.
- * Admin will add these through the API.
- */
 @Entity
 @Table(name = "cafeterias")
 @Getter

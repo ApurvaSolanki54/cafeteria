@@ -17,11 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
-/* 
- * @RestController = @Controller + @ResponseBody
- * It means: "This class handles HTTP requests, and return values are automatically
- * converted to JSON."
-*/
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor

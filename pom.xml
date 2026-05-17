@@ -4,10 +4,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!--
-        Think of this like a "parent recipe book".
-        Spring Boot gives us default settings so we don't have to configure everything manually.
-    -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -15,7 +11,6 @@
         <relativePath/>
     </parent>
 
-    <!-- Your project's identity card -->
     <groupId>com.yourname</groupId>
     <artifactId>cafeteria-booking</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -27,53 +22,27 @@
     </properties>
 
     <dependencies>
-        <!--
-            Spring Web: Lets us create REST APIs (the @RestController, @GetMapping etc.)
-            Without this, we can't receive HTTP requests.
-        -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
-        <!--
-            Spring Data JPA: Lets us talk to the database without writing raw SQL.
-            JPA translates our Java objects into database rows automatically.
-        -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
-
-        <!--
-            Spring Security: Handles login, logout, and who can access what.
-            We'll use this with JWT tokens.
-        -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-
-        <!--
-            Validation: Lets us add rules like @NotNull, @Email on our request objects.
-            So if someone sends empty email, we automatically reject it.
-        -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-
-        <!-- PostgreSQL driver: The "translator" between Java and PostgreSQL database -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
-
-        <!--
-            JWT library: For creating and reading JWT tokens.
-            JWT = a small digital "badge" that proves who you are.
-        -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -91,18 +60,11 @@
             <version>0.12.3</version>
             <scope>runtime</scope>
         </dependency>
-
-        <!--
-            Lombok: Reduces boring boilerplate code.
-            Instead of writing getters/setters manually, just add @Getter @Setter.
-        -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
-
-        <!-- Testing library (comes by default, keep it) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -117,7 +79,6 @@
 
     <build>
         <plugins>
-            <!-- This plugin packages your app into a runnable JAR file -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

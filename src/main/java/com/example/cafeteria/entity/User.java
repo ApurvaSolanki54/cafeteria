@@ -17,10 +17,10 @@ import jakarta.persistence.Id;
 
 @Entity
 @Table(name = "users")
-@Getter         // Lombok generates all getters automatically
-@Setter         // Lombok generates all setters automatically
-@NoArgsConstructor   // Lombok generates empty constructor: new User()
-@AllArgsConstructor  // Lombok generates full constructor with all fields
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

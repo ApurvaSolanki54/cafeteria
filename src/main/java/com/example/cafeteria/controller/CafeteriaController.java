@@ -21,10 +21,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
-/*
- * Public APIs that ALL logged-in employees can use.
- * View cafeterias, see available tables.
- */
 @RestController
 @RequestMapping("/api/cafeterias")
 @RequiredArgsConstructor

@@ -19,13 +19,6 @@ import com.example.cafeteria.service.CafeteriaService;
 
 import lombok.RequiredArgsConstructor;
 
-/*
- * @PreAuthorize("hasRole('ADMIN')") on the class means:
- * Every single method here requires ADMIN role.
- * If an EMPLOYEE tries to call these APIs, they get 403 Forbidden.
- *
- * This is an extra layer on top of the URL-based rule in SecurityConfig.
- */
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor

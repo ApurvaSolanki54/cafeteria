@@ -11,7 +11,6 @@ import com.example.cafeteria.entity.BookingMember;
 public interface BookingMemberRepository extends JpaRepository<BookingMember, Long> {
     List<BookingMember> findByBookingId(Long bookingId);
 
-    // Check if user already added to this booking
     boolean existsByBookingIdAndUserId(Long bookingId, Long userId);
 
 }

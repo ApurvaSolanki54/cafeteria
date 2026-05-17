@@ -27,13 +27,6 @@ public class CafeteriaTable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /*
-     * @ManyToOne means: "Many tables belong to one cafeteria."
-     * @JoinColumn(name = "cafeteria_id") creates a foreign key column
-     * in the cafeteria_tables table pointing to cafeterias.id
-     *
-     * Example: Table id=5 has cafeteria_id=1 (belongs to Main Cafeteria)
-     */
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cafeteria_id", nullable = false)
     private Cafeteria cafeteria;

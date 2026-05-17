@@ -16,7 +16,7 @@ import com.example.cafeteria.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor// Lombok: generates constructor for all final fields
+@RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -26,12 +26,7 @@ public class AuthService {
     @Value("${app.coins.monthly-refill}")
     private Integer monthlyCoins;
 
-    /*
-     * REGISTER a new employee.
-     * By default, everyone is EMPLOYEE role.
-     * ADMIN accounts are created directly in the database (for security).
-    */
-   public AuthResponse register(RegisterRequest request) {
+    public AuthResponse register(RegisterRequest request) {
         // Check if email already taken
         if(userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already registerd");
@@ -48,15 +43,8 @@ public class AuthService {
         // Generate JWT token so they're immediately logged in
         String token = jwtConfig.generateToken(user.getEmail());
         return new AuthResponse(token, user.getName(), user.getEmail(), user.getRole().name(), user.getCoinBalance());
-   }
+    }
 
-   /*
-     * LOGIN an existing user.
-     * authenticationManager.authenticate() does all the heavy lifting:
-     * - Loads user from DB using UserDetailsServiceImpl
-     * - Compares provided password with stored hash using BCrypt
-     * - Throws BadCredentialsException if wrong password
-     */
     public AuthResponse login(AuthRequest request) {
         // This line does the actual verification
         authenticationManager.authenticate(
@@ -66,7 +54,6 @@ public class AuthService {
         // If we reach here, authentication succeeded
         User user = userRepository.findByEmail(request.getEmail())
         .orElseThrow(() -> new RuntimeException("User not found"));
-        System.out.println("user login: "+ user);
         String token = jwtConfig.generateToken(user.getEmail());
         return new AuthResponse(token, user.getName(), user.getEmail(), user.getRole().name(), user.getCoinBalance());
     }

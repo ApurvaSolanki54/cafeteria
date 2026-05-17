@@ -11,13 +11,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
-/*
- * Spring Security needs to know: "Given an email, who is this user and what are their roles?"
- * This class answers that question.
- *
- * UserDetailsService is a Spring Security interface with ONE method: loadUserByUsername.
- * We implement it to load our User from PostgreSQL.
- */
 @Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -26,15 +19,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        // Find user by email. If not found, throw exception (Spring Security handles the rest)
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
         System.err.println("user in loadUserByUsername " + user.getEmail() + " " + user.getPassword() + " " + user.getRole().name());
-        /*
-         * Spring Security needs a "ROLE_" prefix for roles.
-         * So our "ADMIN" becomes "ROLE_ADMIN".
-         * Our "EMPLOYEE" becomes "ROLE_EMPLOYEE".
-         */
+
         return new org.springframework.security.core.userdetails.User(
             user.getEmail(),
             user.getPassword(),

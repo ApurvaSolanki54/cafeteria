@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.Query;
 import com.example.cafeteria.entity.Booking;
 
 public interface BookingRepository extends JpaRepository<Booking, Long>{
-    // Get all upcoming bookings made by a specific user
     List<Booking> findByBookerIdAndStatusOrderByStartTimeAsc(Long bookerId, Booking.BookingStatus status);
 
     /*
@@ -51,7 +50,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long>{
     * Used by frontend to show "Booked at 1:00 PM with 3 people" on the red tile.
     *
     * We check: is there a booking whose window covers the requested time?
-    * meaning: requestedTime falls inside (startTime → windowEnd)
+    * meaning: requestedTime falls inside (startTime -> windowEnd)
     */
     @Query("""
         SELECT b FROM Booking b

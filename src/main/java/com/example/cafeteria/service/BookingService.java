@@ -27,10 +27,8 @@ public class BookingService {
     private final CafeteriaTableRepository tableRepository;
     private final UserRepository userRepository;
 
-    // Booking = 30 minutes
     private static final int BOOKING_DURATION_MINUTES = 30;
 
-    // Buffer before and after = 10 minutes each
     private static final int BUFFER_MINUTES = 10;
 
     @Transactional
@@ -85,10 +83,6 @@ public class BookingService {
         return mapToResponse(booking);
     }
 
-    /*
-     * Add a colleague to an existing booking.
-     * Only the person who made the booking can add members.
-     */
     @Transactional
     public BookingResponse addMember(Long bookingId, Long memberId, String requesterEmail) {
         Booking booking = bookingRepository.findById(bookingId)
@@ -210,7 +204,7 @@ public class BookingService {
         .toList();
     }
 
-    // Convert Booking entity → BookingResponse DTO
+    // Convert Booking entity -> BookingResponse DTO
     private BookingResponse mapToResponse(Booking booking) {
         BookingResponse response = new BookingResponse();
         response.setId(booking.getId());
