@@ -1,0 +1,11 @@
+# Same idea as .gitignore but for Docker.
+# These files won't be copied into the Docker image.
+# Keeps the image small and build fast.
+
+target/
+.git/
+.gitignore
+*.md
+.idea/
+*.iml
+.env
