@@ -22,7 +22,7 @@ public class CorsConfig {
         */
         // Allow frontend URLs
         config.addAllowedOrigin("http://localhost:5173");
-        config.addAllowedOrigin("https://cafeteria-frontend-wheat.vercel.app/");
+        config.addAllowedOrigin("https://cafeteria-frontend-wheat.vercel.app");
 
         // Allow all HTTP methods
         config.addAllowedMethod("*");
@@ -32,7 +32,7 @@ public class CorsConfig {
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", config);
+        source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
 }
