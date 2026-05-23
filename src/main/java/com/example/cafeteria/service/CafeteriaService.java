@@ -95,6 +95,7 @@ public class CafeteriaService {
                 booking -> {
                     // BOOKED — fill all the booking details
                     resp.setStatus("BOOKED");
+                    resp.setBookingStatus(booking.getStatus().name()); // "ACTIVE" or "PENDING"
                     resp.setBookedFrom(booking.getStartTime());   // actual time e.g. 17:00
                     resp.setBookedUntil(booking.getEndTime());
 

@@ -1,9 +1,13 @@
 package com.example.cafeteria.service;
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.example.cafeteria.entity.Booking;
+import com.example.cafeteria.repository.BookingRepository;
 import com.example.cafeteria.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -19,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CoinRefillService {
     private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
 
     @Value("${app.coins.monthly-refill}")
     private Integer monthlyCoins;
@@ -38,5 +43,27 @@ public class CoinRefillService {
 
         log.info("Monthly coin refill complete! {} employees refilled with {} coins each.",
             allUsers.size(), monthlyCoins);
+    }
+
+    /*
+    * Runs every 10 seconds.
+    * Finds all PENDING bookings older than 5 seconds and cancels them.
+    * This releases the "hold" if user walked away without confirming.
+    *
+    * cron = "0/10 * * * * *" means: every 10 seconds
+    */
+    @Scheduled(cron = "0/10 * * * * *")
+    @Transactional
+    public void cancelExpiredHolds() {
+        LocalDateTime fiveSecondsAgo = LocalDateTime.now().minusSeconds(5);
+
+        // Find PENDING bookings created more than 5 seconds ago
+        bookingRepository.findAll().stream()
+        .filter(b -> b.getStatus() == Booking.BookingStatus.PENDING
+            && b.getCreatedAt().isBefore(fiveSecondsAgo))
+        .forEach(b -> {
+            b.setStatus(Booking.BookingStatus.CANCELLED);
+            bookingRepository.save(b);
+        });
     }
 }

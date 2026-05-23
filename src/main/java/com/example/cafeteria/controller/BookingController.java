@@ -1,6 +1,7 @@
 package com.example.cafeteria.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -98,6 +99,29 @@ public class BookingController {
     ) {
         var results = bookingService.searchColleagues(name, currentUser.getUsername());
         return ResponseEntity.ok(ApiResponse.success("Search results", results));
+    }
+
+    /*
+    * POST /api/bookings/hold
+    * Creates a PENDING booking that expires in 1 minute.
+    * Called when user SELECTS a table (not when they confirm).
+    * Other users see this table as "pending" (yellow/orange).
+    *
+    * If user confirms → status changes to ACTIVE
+    * If user walks away → a scheduled job cleans up PENDING after 1 min
+    */
+    @PostMapping("/hold")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> holdTable(
+        @RequestBody Map<String, Object> body,
+        @AuthenticationPrincipal UserDetails currentUser
+    ) {
+        String tableId = body.get("tableId").toString();
+        String startTime = body.get("startTime").toString();
+        Map<String, Object> result = bookingService.holdTable(
+            tableId, startTime, currentUser.getUsername()
+        );
+        System.out.println("result hold "+ result);
+        return ResponseEntity.ok(ApiResponse.success("Table held for 1 minute", result));
     }
 
 }

@@ -27,4 +27,6 @@ public class TableStatusResponse {
     private LocalDateTime bookedFrom;  // actual start time e.g. 17:00
     private LocalDateTime bookedUntil; // actual end time e.g. 17:30
     private Integer occupiedSeats;     // booker + members count e.g. 3
+
+    private String bookingStatus; // "ACTIVE" or "PENDING"
 }
