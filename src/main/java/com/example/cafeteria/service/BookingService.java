@@ -2,6 +2,7 @@ package com.example.cafeteria.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
@@ -51,27 +52,58 @@ public class BookingService {
         LocalDateTime endTime = starTime.plusMinutes(BOOKING_DURATION_MINUTES);
         LocalDateTime windowEnd = endTime.plusMinutes(BUFFER_MINUTES);
 
-        //Step 5: Check for conflicts BEFORE saving.
-        List<Booking> conflicts = bookingRepository.findConflictiBookings(table.getId(), starTime, windowEnd);
-        if(!conflicts.isEmpty()) {
-            throw new RuntimeException("Table is not available at this time. Please choose another slot.");
-        }
+        /*
+        * NEW — Check if this user already has a PENDING hold
+        * for this exact table at this exact time.
+        *
+        * If YES -> just upgrade it to ACTIVE (no new row = no constraint violation)
+        * If NO  -> check for conflicts and create fresh ACTIVE booking
+        */
+        Booking booking = bookingRepository
+            .findPendingByTableAndTimeAndUser(
+                table.getId(),
+                starTime,
+                booker.getId()
+            )
+            .orElse(null);
 
-        // Step 6: Create the booking
-        Booking booking  = new Booking();
-        booking.setBooker(booker);
-        booking.setTable(table);
-        booking.setStartTime(starTime);
-        booking.setEndTime(endTime);
-        booking.setWindowEnd(windowEnd);
-        booking.setStatus(Booking.BookingStatus.ACTIVE);
-
-        // Step 7: Save booking (if unique constraint violated, exception thrown here)
-        try {
+        if (booking != null) {
+            /*
+            * HAPPY PATH — user is confirming their own hold.
+            * Just change status from PENDING -> ACTIVE.
+            * No new row inserted -> no unique constraint violation.
+            */
+            booking.setStatus(Booking.BookingStatus.ACTIVE);
             booking = bookingRepository.save(booking);
-        } catch (Exception e) {
-            // Unique constraint violation = someone else just booked this table
-            throw new RuntimeException("Table was just booked by someone else. Please try again!");
+
+        }
+        else {
+            /*
+            * No existing hold — check for conflicts with OTHER people's bookings
+            * then create a fresh ACTIVE booking.
+            */
+            //Step 5: Check for conflicts BEFORE saving.
+            List<Booking> conflicts = bookingRepository.findConflictiBookings(table.getId(), starTime, windowEnd);
+            if(!conflicts.isEmpty()) {
+                throw new RuntimeException("Table is not available at this time. Please choose another slot.");
+            }
+    
+            // Step 6: Create the booking
+            booking = new Booking();
+            booking.setBooker(booker);
+            booking.setTable(table);
+            booking.setStartTime(starTime);
+            booking.setEndTime(endTime);
+            booking.setWindowEnd(windowEnd);
+            booking.setStatus(Booking.BookingStatus.ACTIVE);
+    
+            // Step 7: Save booking (if unique constraint violated, exception thrown here)
+            try {
+                booking = bookingRepository.save(booking);
+            } catch (Exception e) {
+                // Unique constraint violation = someone else just booked this table
+                throw new RuntimeException("Table was just booked by someone else. Please try again!");
+            }
         }
         // Step 8: Deduct 1 coin from booker
         booker.setCoinBalance(booker.getCoinBalance()-1);
@@ -224,5 +256,54 @@ public class BookingService {
         .toList();
         response.setMemberNames(memberNames);
         return response;
+    }
+
+    /*
+    * Creates a PENDING booking — like "I am looking at this table".
+    * Expires in 5 seconds if not confirmed.
+    * Does NOT deduct coins (coins only deducted on ACTIVE booking).
+    */
+    @Transactional
+    public Map<String, Object> holdTable(String tableId, String startTimeStr, String userEmail) {
+        System.out.println("----------------hold table log--------------");
+        User user  = userRepository.findByEmail(userEmail)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+
+        CafeteriaTable table  = tableRepository.findById(Long.valueOf(tableId))
+        .orElseThrow(() -> new RuntimeException("Table not found"));
+        System.out.println("hold table " + table.getId());
+        LocalDateTime startTime = LocalDateTime.parse(startTimeStr);
+        LocalDateTime endTime = startTime.plusMinutes(BOOKING_DURATION_MINUTES);
+        LocalDateTime windowEnd = endTime.plusMinutes(BUFFER_MINUTES);
+
+        // Cancel any existing PENDING hold by this user (clean up old holds)
+        // so one user can't hold multiple tables simultaneously
+        bookingRepository.findPendingByUser(user.getId()).forEach(b -> {
+            b.setStatus(Booking.BookingStatus.CANCELLED);
+            bookingRepository.save(b);
+        });
+
+        // Check no ACTIVE booking conflicts
+        List<Booking> conflicts = bookingRepository.findConflictiBookings(
+            table.getId(), startTime, windowEnd
+        );
+        if(!conflicts.isEmpty()) {
+            throw new RuntimeException("Table already booked at this time.");
+        }
+
+        // Create PENDING booking — no coin deduction yet
+        Booking hold = new Booking();
+        hold.setBooker(user);
+        hold.setTable(table);
+        hold.setStartTime(startTime);
+        hold.setEndTime(endTime);
+        hold.setWindowEnd(windowEnd);
+        hold.setStatus(Booking.BookingStatus.PENDING);
+        hold = bookingRepository.save(hold);
+
+        return Map.of(
+            "holdId",   hold.getId(),
+            "expiresIn", 5  // seconds
+        );
     }
 }

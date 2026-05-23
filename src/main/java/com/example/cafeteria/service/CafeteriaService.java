@@ -71,8 +71,8 @@ public class CafeteriaService {
     /*
     * For each table in the cafeteria:
     * 1. Check if there's an active booking at the requested time
-    * 2. If YES → status = BOOKED, fill bookedFrom, bookedUntil, occupiedSeats
-    * 3. If NO  → status = FREE
+    * 2. If YES -> status = BOOKED, fill bookedFrom, bookedUntil, occupiedSeats
+    * 3. If NO  -> status = FREE
     *
     * occupiedSeats = 1 (booker) + number of members added
     * This drives the dark/light red seat dots in frontend.
@@ -95,6 +95,7 @@ public class CafeteriaService {
                 booking -> {
                     // BOOKED — fill all the booking details
                     resp.setStatus("BOOKED");
+                    resp.setBookingStatus(booking.getStatus().name()); // "ACTIVE" or "PENDING"
                     resp.setBookedFrom(booking.getStartTime());   // actual time e.g. 17:00
                     resp.setBookedUntil(booking.getEndTime());
 

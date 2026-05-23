@@ -21,13 +21,13 @@ import lombok.Setter;
 
 @Entity
 @Table(
-    name = "bookings",
+    name = "bookings"
     // This is the KEY for preventing double bookings!
     // No two bookings can have the same table + same start_time.
     // If two people try simultaneously, database rejects the second one.
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"table_id","start_time"})
-    }
+    // uniqueConstraints = {
+    //     @UniqueConstraint(columnNames = {"table_id","start_time"})
+    // }
 )
 @Getter
 @Setter
@@ -74,6 +74,7 @@ public class Booking {
 
     public enum BookingStatus {
         ACTIVE,    // Booking is valid and upcoming
+        PENDING,    // someone started booking, not confirmed yet (expires in 1 min)
         COMPLETED, // Lunch time passed
         CANCELLED  // Someone cancelled it
     }

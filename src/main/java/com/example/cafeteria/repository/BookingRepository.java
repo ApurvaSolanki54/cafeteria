@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import com.example.cafeteria.entity.Booking;
+import com.example.cafeteria.entity.Booking.BookingStatus;
 
 public interface BookingRepository extends JpaRepository<Booking, Long>{
     List<Booking> findByBookerIdAndStatusOrderByStartTimeAsc(Long bookerId, Booking.BookingStatus status);
@@ -55,12 +56,42 @@ public interface BookingRepository extends JpaRepository<Booking, Long>{
     @Query("""
         SELECT b FROM Booking b
         WHERE b.table.id = :tableId
-        AND b.status = 'ACTIVE'
+        AND b.status IN ('ACTIVE', 'PENDING')
         AND :requestedTime >= b.startTime
         AND :requestedTime < b.windowEnd
         """)
     Optional<Booking> findActiveBookingAtTime(
         Long tableId,
         LocalDateTime requestedTime
+    );
+
+    List<Booking> findByStatusAndWindowEndBefore(
+        BookingStatus status,
+        LocalDateTime time
+    );
+
+    // Find all PENDING holds by a user (to cancel old ones)
+    @Query("SELECT b FROM Booking b WHERE b.booker.id = :userId AND b.status = 'PENDING'")
+    List<Booking> findPendingByUser(Long userId);
+
+    /*
+    * Find a PENDING booking made by THIS specific user
+    * for THIS specific table at THIS specific start time.
+    *
+    * Used in createBooking to check:
+    * "Did this user already hold this table?"
+    * If yes -> upgrade to ACTIVE instead of inserting new row.
+    */
+    @Query("""
+        SELECT b FROM Booking b
+        WHERE b.table.id   = :tableId
+        AND   b.startTime  = :startTime
+        AND   b.booker.id  = :userId
+        AND   b.status     = 'PENDING'
+        """)
+    Optional<Booking> findPendingByTableAndTimeAndUser(
+        Long tableId,
+        LocalDateTime startTime,
+        Long userId
     );
 }

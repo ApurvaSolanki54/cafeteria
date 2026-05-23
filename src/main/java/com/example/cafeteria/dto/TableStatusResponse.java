@@ -12,7 +12,11 @@ public class TableStatusResponse {
     private Integer maxCapacity;
     private boolean isActive;    
     private String status;
-    private LocalDateTime bookedFrom;  
-    private LocalDateTime bookedUntil; 
-    private Integer occupiedSeats;     
+
+    // Only filled when BOOKED:
+    private LocalDateTime bookedFrom;  // actual start time e.g. 17:00
+    private LocalDateTime bookedUntil; // actual end time e.g. 17:30
+    private Integer occupiedSeats;     // booker + members count e.g. 3
+
+    private String bookingStatus; // "ACTIVE" or "PENDING"
 }
