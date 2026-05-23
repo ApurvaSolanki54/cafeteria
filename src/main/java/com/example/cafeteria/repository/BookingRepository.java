@@ -19,17 +19,33 @@ public interface BookingRepository extends JpaRepository<Booking, Long>{
      * Used as double-check before saving a new booking.
      */
     
+
+    /*
+    * Find conflicting bookings for a table at a given time window.
+    *
+    * BLOCKS if:
+    *   - Someone else has an ACTIVE booking (confirmed)
+    *   - Someone else has a PENDING hold (currently selecting)
+    *
+    * DOES NOT BLOCK if:
+    *   - The current user themselves has a PENDING hold
+    *     (they are allowed to confirm their own hold)
+    *
+    * :currentUserId — the person trying to book/hold right now
+    */
     @Query("""
         SELECT b FROM Booking b
         WHERE b.table.id = :tableId
-        AND b.status = 'ACTIVE'
-        AND :newStartTime < b.windowEnd
-        AND :newWindowEndTime > b.startTime
-    """)
-    List<Booking> findConflictiBookings(
-        Long tableId, 
-        LocalDateTime newStartTime,
-        LocalDateTime newWindowEndTime
+        AND b.status IN ('ACTIVE', 'PENDING')
+        AND b.booker.id != :currentUserId
+        AND :newStart < b.windowEnd
+        AND :newWindowEnd > b.startTime
+        """)
+    List<Booking> findConflictingBookings(
+        Long tableId,
+        LocalDateTime newStart,
+        LocalDateTime newWindowEnd,
+        Long currentUserId   // <- NEW parameter
     );
 
     // Find all active bookings for a table on a given day
@@ -67,7 +83,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long>{
         AND b.status IN ('ACTIVE', 'PENDING')
         AND :requestedTime >= b.startTime
         AND :requestedTime < b.windowEnd
+        ORDER BY b.status ASC
         """)
+        // ORDER BY status ASC puts ACTIVE before PENDING
+        // So if both exist somehow, ACTIVE wins for display
     Optional<Booking> findActiveBookingAtTime(
         Long tableId,
         LocalDateTime requestedTime
