@@ -264,12 +264,12 @@ public class BookingService {
     * Does NOT deduct coins (coins only deducted on ACTIVE booking).
     */
     @Transactional
-    public Map<String, Object> holdTable(String tableId, String startTimeStr, String userEmail) {
+    public Map<String, Object> holdTable(Long tableId, String startTimeStr, String userEmail) {
         System.out.println("----------------hold table log--------------");
         User user  = userRepository.findByEmail(userEmail)
         .orElseThrow(() -> new RuntimeException("User not found"));
 
-        CafeteriaTable table  = tableRepository.findById(Long.valueOf(tableId))
+        CafeteriaTable table  = tableRepository.findById(tableId)
         .orElseThrow(() -> new RuntimeException("Table not found"));
         System.out.println("hold table " + table.getId());
         LocalDateTime startTime = LocalDateTime.parse(startTimeStr);

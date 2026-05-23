@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.cafeteria.dto.ApiResponse;
 import com.example.cafeteria.dto.BookingRequest;
 import com.example.cafeteria.dto.BookingResponse;
+import com.example.cafeteria.dto.HoldRequest;
 import com.example.cafeteria.service.BookingService;
 
 import jakarta.validation.Valid;
@@ -112,15 +113,14 @@ public class BookingController {
     */
     @PostMapping("/hold")
     public ResponseEntity<ApiResponse<Map<String, Object>>> holdTable(
-        @RequestBody Map<String, Object> body,
+        @Valid @RequestBody HoldRequest request,   // ← use HoldRequest DTO not Map
         @AuthenticationPrincipal UserDetails currentUser
     ) {
-        String tableId = body.get("tableId").toString();
-        String startTime = body.get("startTime").toString();
         Map<String, Object> result = bookingService.holdTable(
-            tableId, startTime, currentUser.getUsername()
+            request.getTableId(),
+            request.getStartTime().toString(),
+            currentUser.getUsername()
         );
-        System.out.println("result hold "+ result);
         return ResponseEntity.ok(ApiResponse.success("Table held for 1 minute", result));
     }
 
