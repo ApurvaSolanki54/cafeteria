@@ -73,17 +73,24 @@ public class BookingService {
             * Just change status from PENDING -> ACTIVE.
             * No new row inserted -> no unique constraint violation.
             */
-            booking.setStatus(Booking.BookingStatus.ACTIVE);
-            booking = bookingRepository.save(booking);
 
+            try {
+                booking.setStatus(Booking.BookingStatus.ACTIVE);
+                booking = bookingRepository.save(booking);
+            } catch (Exception e) {
+                throw new RuntimeException("Table was just booked by someone else. Please try again!");
+            }
         }
         else {
             /*
             * No existing hold — check for conflicts with OTHER people's bookings
             * then create a fresh ACTIVE booking.
+
+            * Check if OTHER users have ACTIVE or PENDING on this slot.
+            * Pass currentUserId so the query excludes this user's own holds.
             */
             //Step 5: Check for conflicts BEFORE saving.
-            List<Booking> conflicts = bookingRepository.findConflictiBookings(table.getId(), starTime, windowEnd);
+            List<Booking> conflicts = bookingRepository.findConflictingBookings(table.getId(), starTime, windowEnd, booker.getId());
             if(!conflicts.isEmpty()) {
                 throw new RuntimeException("Table is not available at this time. Please choose another slot.");
             }
@@ -284,8 +291,8 @@ public class BookingService {
         });
 
         // Check no ACTIVE booking conflicts
-        List<Booking> conflicts = bookingRepository.findConflictiBookings(
-            table.getId(), startTime, windowEnd
+        List<Booking> conflicts = bookingRepository.findConflictingBookings(
+            table.getId(), startTime, windowEnd, user.getId()
         );
         if(!conflicts.isEmpty()) {
             throw new RuntimeException("Table already booked at this time.");
